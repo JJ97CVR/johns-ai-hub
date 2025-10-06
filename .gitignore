@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+*.egg-info/
+
+# Environment variables (VIKTIGT - läcker aldrig keys!)
+.env
+.env.local
+*.key
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Output filer från scripts
+output/
+volvo_db_structure.json
+import.log
+
+# IDE
+.vscode/
+.idea/
+._*
+.DS_Store
