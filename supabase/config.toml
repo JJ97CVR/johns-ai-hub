@@ -1,0 +1,61 @@
+project_id = "vvgcvyulcrgdtuzdobgn"
+
+# Connection pooling for better performance
+[db.pooler]
+enabled = true
+pool_mode = "transaction"
+default_pool_size = 20
+max_client_conn = 100
+
+[functions.chat]
+verify_jwt = true
+
+[functions.upload-file]
+verify_jwt = true
+
+[functions.download-file]
+verify_jwt = true
+
+[functions.seed-knowledge]
+verify_jwt = true
+
+[functions.seed-parts]
+verify_jwt = true
+
+[functions.assign-role]
+verify_jwt = true
+
+[functions.get-knowledge-stats]
+verify_jwt = true
+
+[functions.promote-to-kb]
+verify_jwt = true
+
+[functions.get-review-candidates]
+verify_jwt = true
+
+[functions.learn-from-feedback]
+verify_jwt = false
+
+[functions.process-analytics]
+verify_jwt = false
+
+[functions.cleanup-old-data]
+verify_jwt = false
+
+[functions.get-metrics]
+verify_jwt = true
+
+# Scheduled jobs (cron syntax)
+# Runs cleanup every day at 3 AM UTC
+[[edge_runtime.scheduler]]
+enabled = true
+path = "/process-analytics"
+schedule = "*/5 * * * *"
+body = "{}"
+
+[[edge_runtime.scheduler]]
+enabled = true
+path = "/cleanup-old-data"
+schedule = "0 3 * * *"
+body = "{}"

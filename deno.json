@@ -1,0 +1,56 @@
+{
+  "nodeModulesDir": "auto",
+  "compilerOptions": {
+    "lib": ["deno.window", "deno.unstable"],
+    "strict": true,
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "react"
+  },
+  "imports": {
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2",
+    "openai": "https://esm.sh/openai@4",
+    "xhr": "https://deno.land/x/xhr@0.3.0/mod.ts",
+    "@langchain/core": "npm:@langchain/core@^0.2.27",
+    "@langchain/langgraph": "npm:@langchain/langgraph@^0.0.34",
+    "@langchain/openai": "npm:@langchain/openai@^0.2.8",
+    "@langchain/anthropic": "npm:@langchain/anthropic@^0.2.13",
+    "@langchain/google-genai": "npm:@langchain/google-genai@^0.0.25",
+    "zod": "npm:zod@^3.23.8"
+  },
+  "tasks": {
+    "dev": "deno run --allow-net --allow-read --allow-env supabase/functions/_dev.ts",
+    "test": "deno test --allow-all supabase/functions/shared/__tests__/",
+    "lint": "deno lint supabase/functions/",
+    "fmt": "deno fmt supabase/functions/"
+  },
+  "lint": {
+    "files": {
+      "include": ["supabase/functions/"],
+      "exclude": ["supabase/functions/shared/__tests__/"]
+    },
+    "rules": {
+      "tags": ["recommended"],
+      "include": ["ban-untagged-todo", "no-unused-vars"],
+      "exclude": ["no-explicit-any"]
+    }
+  },
+  "fmt": {
+    "files": {
+      "include": ["supabase/functions/"],
+      "exclude": ["supabase/functions/shared/__tests__/"]
+    },
+    "options": {
+      "useTabs": false,
+      "lineWidth": 100,
+      "indentWidth": 2,
+      "singleQuote": true,
+      "proseWrap": "preserve"
+    }
+  },
+  "test": {
+    "files": {
+      "include": ["supabase/functions/shared/__tests__/"]
+    }
+  }
+}

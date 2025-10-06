@@ -1,0 +1,264 @@
+{
+  "database": "volvo_production.db",
+  "analyzed_at": "2025-10-03",
+  "summary": {
+    "total_tables": 8,
+    "total_products": 60363,
+    "total_fitments": 4053119,
+    "total_alternative_names": 89298
+  },
+  "tables": {
+    "products": {
+      "rows": 60363,
+      "primary_key": "id",
+      "description": "Huvudtabell för alla Volvo-produkter/artiklar",
+      "key_columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "oe_nummer": "TEXT (53,601 unique) - OE artikelnummer",
+        "vp_artikelnummer": "TEXT - VP artikelnummer",
+        "skandix_product_id": "TEXT - Skandix produkt-ID",
+        "skandix_name_eng": "TEXT - Engelsk produktnamn",
+        "skandix_price": "REAL - Pris från Skandix",
+        "swedish_translation": "TEXT (6,497 unique) - Svensk översättning",
+        "translation_status": "TEXT - verified/pending/needs_review",
+        "normalized_name": "TEXT (5,996 unique) - Normaliserat produktnamn",
+        "part_system": "TEXT - engine/suspension/brakes/driveline",
+        "has_fitments": "INTEGER - Boolean om fitment finns",
+        "fitment_count": "INTEGER - Antal fitments",
+        "kl_namn": "TEXT - KL Racing namn",
+        "folkrace_namn": "TEXT - Folkrace Shop namn",
+        "vp_namn": "TEXT - VP Autoparts namn",
+        "cvr_namn": "TEXT - Classic Volvo Restoration namn",
+        "fordon_namn": "TEXT - Fordonsdelen namn"
+      },
+      "indexes": [
+        "idx_oe (oe_nummer)",
+        "idx_skandix (skandix_product_id)",
+        "idx_vp (vp_artikelnummer)",
+        "idx_has_fitments",
+        "idx_needs_translation"
+      ]
+    },
+    "expanded_fitments": {
+      "rows": 4053119,
+      "primary_key": "id",
+      "description": "Expanderade fitment-data - varje rad = en specifik modell/motor/årskombination",
+      "key_columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "product_id": "INTEGER FK → products.id (10,476 unique products)",
+        "original_fitment_id": "INTEGER FK → fitments.id",
+        "model": "TEXT (24 unique) - 120, 140, 240, 740, V70, etc.",
+        "variant": "TEXT (31 unique) - Modellvariant",
+        "year": "INTEGER (54 unique) - Årsmodell",
+        "year_from": "INTEGER - Från år",
+        "year_to": "INTEGER - Till år",
+        "engine": "TEXT (124 unique) - B200G, B230ET, D5, etc.",
+        "chassis_from": "INTEGER (525 unique) - Chassinummer från",
+        "chassis_to": "INTEGER (478 unique) - Chassinummer till",
+        "modellkod": "TEXT (212 unique) - Volvo modellkod",
+        "raw_fitment": "TEXT - Original fitment-text"
+      },
+      "indexes": [
+        "idx_expanded_product (product_id)",
+        "idx_expanded_variant (variant)",
+        "idx_expanded_year (year)",
+        "idx_expanded_engine (engine)"
+      ],
+      "foreign_keys": [
+        "product_id → products.id",
+        "original_fitment_id → fitments.id"
+      ]
+    },
+    "fitments": {
+      "rows": 73196,
+      "primary_key": "id",
+      "description": "Original fitment-data innan expansion",
+      "key_columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "product_id": "INTEGER FK → products.id (11,221 unique)",
+        "model": "TEXT (57 unique) - Volvo modell",
+        "engine": "TEXT (239 unique) - 62.3% null",
+        "year_from": "TEXT - 79.7% null",
+        "year_to": "TEXT - 87.5% null",
+        "model_year": "TEXT (172 unique) - Årsmodell text",
+        "raw_fitment": "TEXT (7,365 unique) - Original beskrivning"
+      },
+      "indexes": [
+        "idx_fitments_product (product_id)",
+        "idx_fitments_model (model, engine)",
+        "idx_fitments_years (year_from, year_to)"
+      ],
+      "foreign_keys": [
+        "product_id → products.id"
+      ]
+    },
+    "alternative_names": {
+      "rows": 89298,
+      "primary_key": "id",
+      "description": "Alternativa namn/benämningar för OE-nummer från olika källor",
+      "key_columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "product_id": "INTEGER FK → products.id (7,103 unique)",
+        "oe_number": "TEXT (7,100 unique) - OE artikelnummer",
+        "alternative_name": "TEXT (33,671 unique) - Alternativt namn",
+        "source_type": "TEXT - url/title/csv/generated_variant",
+        "source_site": "TEXT - klracing.se, folkraceshop.se, etc.",
+        "source_url": "TEXT (24,035 unique)",
+        "oe_verified": "INTEGER - Boolean verifierad",
+        "extraction_date": "TIMESTAMP"
+      },
+      "indexes": [
+        "idx_alt_product (product_id)",
+        "idx_alt_oe (oe_number)",
+        "idx_alt_name (alternative_name)"
+      ],
+      "foreign_keys": [
+        "product_id → products.id"
+      ]
+    },
+    "product_synonyms": {
+      "rows": 179,
+      "primary_key": ["product_id", "swedish_variant", "source"],
+      "description": "Synonymer och varianter av produktnamn",
+      "key_columns": {
+        "product_id": "INTEGER (24 unique products)",
+        "english_name": "TEXT (17 unique)",
+        "swedish_variant": "TEXT (115 unique) - Svensk variant",
+        "source": "TEXT - VP Autoparts, Classic Volvo, etc.",
+        "found_count": "INTEGER - Antal gånger hittad",
+        "first_seen": "TIMESTAMP",
+        "last_seen": "TIMESTAMP"
+      },
+      "indexes": [
+        "idx_synonyms_product (product_id)"
+      ]
+    },
+    "source_mappings": {
+      "rows": 65525,
+      "primary_key": "id",
+      "description": "Mappning mellan produkter och olika källor (Skandix, VP)",
+      "key_columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "product_id": "INTEGER FK → products.id (60,363 unique)",
+        "source_type": "TEXT - skandix/vp",
+        "source_id": "TEXT (36,923 unique) - ID i källsystemet",
+        "source_file": "TEXT - JSON-fil från källa",
+        "match_type": "TEXT - primary/secondary"
+      },
+      "foreign_keys": [
+        "product_id → products.id"
+      ]
+    },
+    "translation_queue": {
+      "rows": 3088,
+      "primary_key": "id",
+      "description": "Kö för översättningar eng→swe",
+      "key_columns": {
+        "id": "INTEGER PRIMARY KEY",
+        "product_id": "INTEGER FK → products.id (3,088 unique)",
+        "source_text": "TEXT (1,837 unique) - Engelsk text",
+        "source_lang": "TEXT - 'eng'",
+        "target_lang": "TEXT - 'swe'",
+        "translated_text": "TEXT - NULL (ej översatt än)",
+        "status": "TEXT - 'pending' (alla 3,088)"
+      },
+      "foreign_keys": [
+        "product_id → products.id"
+      ]
+    }
+  },
+  "key_insights": {
+    "products": {
+      "total": 60363,
+      "with_fitments": "~10,476 produkter har fitment-data",
+      "verified_translations": "~6,497 har svensk översättning",
+      "sources": [
+        "Skandix (53,749 produkter)",
+        "VP Autoparts (11,776 produkter)",
+        "Både (många överlapp)"
+      ],
+      "categories": [
+        "engine",
+        "suspension",
+        "brakes",
+        "driveline",
+        "general"
+      ]
+    },
+    "fitments": {
+      "expanded_rows": 4053119,
+      "original_rows": 73196,
+      "expansion_ratio": "55x expansion från original till expanded",
+      "unique_models": 24,
+      "unique_engines": 124,
+      "year_range": "54 olika årsmodeller",
+      "products_with_fitments": 10476
+    },
+    "alternative_names": {
+      "total_alternatives": 89298,
+      "unique_sources": [
+        "klracing.se",
+        "folkraceshop.se",
+        "sweeng.csv",
+        "fordonsdelen.se"
+      ],
+      "verified": "Alla har oe_verified = 1"
+    },
+    "data_quality": {
+      "products": {
+        "missing_swedish_translation": "76.9% (46,432 produkter)",
+        "missing_price": "78.3% (47,240 produkter)",
+        "pending_translations": 3088
+      },
+      "fitments": {
+        "missing_engine": "62.3% (45,616 fitments)",
+        "missing_year_from": "79.7% (58,346 fitments)",
+        "missing_year_to": "87.5% (64,034 fitments)"
+      }
+    }
+  },
+  "rag_strategy_recommendations": {
+    "priority_1_core_product_data": {
+      "source": "products table",
+      "chunks": "60,363 products",
+      "strategy": "1 chunk per product with all names combined",
+      "content": "normalized_name + skandix_name_eng + all swedish variants (kl_namn, folkrace_namn, vp_namn, cvr_namn, fordon_namn)",
+      "metadata": ["oe_nummer", "part_system", "price", "has_fitments"]
+    },
+    "priority_2_fitment_search": {
+      "source": "expanded_fitments table",
+      "chunks": "Group by product_id → ~10,476 fitment summaries",
+      "strategy": "Aggregate all fitments per product into searchable text",
+      "content": "Passar till: [model] [variant] [year_from]-[year_to] med motor [engine]",
+      "metadata": ["product_id", "models", "engines", "years"]
+    },
+    "priority_3_alternative_names": {
+      "source": "alternative_names table",
+      "chunks": "Merge into product chunks",
+      "strategy": "Add as synonyms/aliases to product embeddings",
+      "content": "Append all alternative_name values to product description"
+    },
+    "chunking_example": {
+      "example_product": {
+        "title": "Kuggremsspännare (OE: 673797)",
+        "content": "Skandix: Timing belt tensioner. Svenska namn: Kuggremsspännare (KL Racing), Remspännare (Folkrace Shop), Spännrulle kuggrem (VP Autoparts). Passar till: Volvo V70 P26 2001-2007 med motor D5, Volvo S80 1999-2006 med motor D5, Volvo XC90 2003-2014 med motor D5. System: engine. Pris: 1299 SEK.",
+        "metadata": {
+          "product_id": 123,
+          "oe_nummer": "673797",
+          "part_system": "engine",
+          "models": ["V70", "S80", "XC90"],
+          "engines": ["D5"],
+          "years": "1999-2014",
+          "has_fitments": true
+        }
+      }
+    }
+  },
+  "next_steps": {
+    "step_1": "Skapa import-script som läser SQLite och genererar chunks",
+    "step_2": "Generate embeddings för alla 60k produkter",
+    "step_3": "Store i Supabase knowledge_base med pgvector",
+    "step_4": "Implementera semantic search i LEX",
+    "step_5": "Add tool för artikelsökning + fitment-matching"
+  }
+}
